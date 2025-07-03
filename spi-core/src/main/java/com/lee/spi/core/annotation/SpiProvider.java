@@ -23,4 +23,10 @@ public @interface SpiProvider {
      */
     String desc() default "";
 
+    /**
+     * 是否是默认实现
+     * true : 当对应的SPI找不到具体实现时候 则执行当前默认实现
+     */
+    boolean isDefault() default false;
+
 }

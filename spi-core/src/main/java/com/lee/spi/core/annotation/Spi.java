@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
  * spi定义
  * @author yanhuai lee
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.SOURCE)
+@Target({ElementType.TYPE})
 public @interface Spi {
 
     /**

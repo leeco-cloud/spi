@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * 身份定义
  * @author yanhuai lee
  */
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.TYPE})
 public @interface Identity {
 
