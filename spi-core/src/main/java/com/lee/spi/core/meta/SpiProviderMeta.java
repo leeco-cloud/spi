@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
- * IdentityMeta
+ * SpiProviderMeta
  * @author yanhuai lee
  */
 @Getter
@@ -16,6 +18,12 @@ import lombok.Setter;
 public class SpiProviderMeta {
 
     private String className;
+
+    private Class<?> classType;
+
+    private String interFaceName;
+
+    private Class<?> interFaceNameClassType;
 
     private String identityCode;
 

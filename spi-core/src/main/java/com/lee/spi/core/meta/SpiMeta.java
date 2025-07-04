@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * IdentityMeta
+ * SpiMeta
  * @author yanhuai lee
  */
 @Getter

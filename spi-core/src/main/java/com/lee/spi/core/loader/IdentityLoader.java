@@ -1,6 +1,7 @@
 package com.lee.spi.core.loader;
 
 import com.alibaba.fastjson.JSON;
+import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.meta.IdentityMeta;
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,8 +15,6 @@ import java.util.List;
  */
 public class IdentityLoader {
 
-    private static final String filePath = "/META-INF/services/identity/Identity.json";
-
     public static volatile List<IdentityMeta> cache = null;
 
     public static List<IdentityMeta> load() {
@@ -25,7 +24,7 @@ public class IdentityLoader {
         synchronized (IdentityLoader.class) {
             if (cache == null) {
                 synchronized (IdentityLoader.class) {
-                    try (InputStream inputStream = IdentityLoader.class.getResourceAsStream(filePath)) {
+                    try (InputStream inputStream = IdentityLoader.class.getResourceAsStream("/" + CommonConfig.identityFilePath)) {
                         if (inputStream == null) {
                             return null;
                         }

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @author yanhuai lee
  */
 @Configurable
-@ComponentScan(basePackages = {"com.lee.spi.spi.core"})
+@ComponentScan(basePackages = {"com.lee.spi.core"})
 public class SpiConfig {
 
 }

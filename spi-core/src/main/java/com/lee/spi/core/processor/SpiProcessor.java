@@ -1,14 +1,22 @@
-package com.lee.spi.core.register.processor;
+package com.lee.spi.core.processor;
 
+import com.alibaba.fastjson.JSON;
 import com.google.auto.service.AutoService;
 import com.lee.spi.core.annotation.Spi;
+import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.meta.SpiMeta;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
+import javax.tools.StandardLocation;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -23,13 +31,11 @@ import java.util.Set;
 @SupportedOptions({"debug", "verify"})
 public class SpiProcessor extends CommonProcessor {
 
-    @Override
-    protected String getSpiMetaInfoFilePath() {
-        return "META-INF/services/Spi.json";
-    }
+    private String content;
 
     @Override
-    protected void processAnnotations(List<Object> metaInfo, Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    protected void processAnnotations(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        List<SpiMeta> spiMetas = new ArrayList<>();
         for (Element element : roundEnv.getElementsAnnotatedWith(Spi.class)) {
             Spi spi = element.getAnnotation(Spi.class);
             // 处理加在接口上的注解
@@ -42,8 +48,8 @@ public class SpiProcessor extends CommonProcessor {
 //                }
 
                 SpiMeta spiMeta = new SpiMeta(interfaceElement.getQualifiedName().toString(), spi.code(), spi.name(), spi.desc(), spi.priority());
-
-                metaInfo.add(spiMeta);
+                spiMetas.add(spiMeta);
+//                metaInfo.add(spiMeta);
 
             }
             // 处理加在方法上的注解
@@ -57,6 +63,24 @@ public class SpiProcessor extends CommonProcessor {
 //                    processMethod(spi, metaInfo, interfaceTypeElement.getQualifiedName(), executableElement);
 //                }
 //            }
+        }
+        if (!spiMetas.isEmpty()) {
+            content = JSON.toJSONString(spiMetas);
+        }
+    }
+
+    @Override
+    protected void generateConfigFiles() {
+        try{
+            if (StringUtils.isBlank(content)) {
+                return;
+            }
+            Filer filer = processingEnv.getFiler();
+            Writer writer = filer.createResource(StandardLocation.CLASS_OUTPUT, "", CommonConfig.spiFilePath).openWriter();
+            writer.write(content);
+            writer.close();
+        } catch (IOException e) {
+            processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
         }
     }
 

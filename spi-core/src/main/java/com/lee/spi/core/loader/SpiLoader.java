@@ -1,6 +1,7 @@
 package com.lee.spi.core.loader;
 
 import com.alibaba.fastjson.JSON;
+import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.meta.SpiMeta;
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,8 +15,6 @@ import java.util.List;
  */
 public class SpiLoader {
 
-    private static final String filePath = "/META-INF/services/Spi.json";
-
     public static volatile List<SpiMeta> cache = null;
 
     public static List<SpiMeta> load() {
@@ -25,7 +24,7 @@ public class SpiLoader {
         synchronized (SpiLoader.class) {
             if (cache == null) {
                 synchronized (SpiLoader.class) {
-                    try (InputStream inputStream = SpiLoader.class.getResourceAsStream(filePath)) {
+                    try (InputStream inputStream = SpiLoader.class.getResourceAsStream("/" + CommonConfig.spiFilePath)) {
                         if (inputStream == null) {
                             return null;
                         }
