@@ -31,7 +31,7 @@ public class SpiCacheLoader {
             SpiCache.spiMetasCache = SpiLoader.load();
             if (SpiCache.spiMetasCache != null) {
                 for (SpiMeta spiMeta : SpiCache.spiMetasCache) {
-                    SpiProxy spiProxy = SpiCache.spiProviderMetasCache.get(spiMeta);
+                    SpiProxy spiProxy = SpiCache.spiSpiProxyCache.get(spiMeta.getInterfaceName());
                     if (spiProxy == null){
                         spiProxy = new SpiProxy();
                     }
@@ -60,9 +60,7 @@ public class SpiCacheLoader {
 
                         Object proxy = ProxyUtils.getProxy(interfaceType, spiProxy);
                         SpiCache.spiProxyInstanceCache.put(spiMeta.getInterfaceName(), proxy);
-                        SpiCache.cache.put(spiMeta.getInterfaceName(), spiProxy);
-                        SpiCache.spiProviderMetasCache.put(spiMeta, spiProxy);
-
+                        SpiCache.spiSpiProxyCache.put(spiMeta.getInterfaceName(), spiProxy);
                         SpiCache.spiProviderClassNames.add(spiProviderMeta.getClassName());
                     }
                 }

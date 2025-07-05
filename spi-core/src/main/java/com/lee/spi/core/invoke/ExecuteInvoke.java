@@ -41,7 +41,7 @@ public class ExecuteInvoke<T> {
 
     private <T> T getInstance() throws Exception{
         SpiCacheLoader.init();
-        SpiProxy spiProxy = SpiCache.cache.get(spiInterface.getName());
+        SpiProxy spiProxy = SpiCache.spiSpiProxyCache.get(spiInterface.getName());
         if (spiProxy == null) {
             throw new RuntimeException("未找到spi实现: " + spiInterface.getName());
         }

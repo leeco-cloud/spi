@@ -18,7 +18,7 @@ public class SpiController {
     // http://127.0.0.1:8080/hello
     @RequestMapping("/hello")
     @ResponseBody
-    public void hello() {
-        spiTest.test();
+    public void hello(String name) {
+        spiTest.test(name);
     }
 }
