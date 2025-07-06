@@ -32,7 +32,7 @@ public class IdentityLoader {
                 return JSON.parseArray(content.toString(), IdentityMeta.class);
             }
         } catch (IOException e) {
-            throw new UncheckedIOException("读取Identity配置失败", e);
+            throw new UncheckedIOException("读取Identity配置失败" + CommonConfig.identityFilePath, e);
         }
     }
 

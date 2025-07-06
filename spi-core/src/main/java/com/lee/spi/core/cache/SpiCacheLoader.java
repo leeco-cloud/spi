@@ -2,6 +2,8 @@ package com.lee.spi.core.cache;
 
 
 import com.lee.spi.core.config.CommonConfig;
+import com.lee.spi.core.exception.ErrorCode;
+import com.lee.spi.core.exception.SpiRuntimeException;
 import com.lee.spi.core.loader.IdentityLoader;
 import com.lee.spi.core.loader.SpiLoader;
 import com.lee.spi.core.loader.SpiProviderLoader;
@@ -53,7 +55,7 @@ public class SpiCacheLoader {
                         Boolean isDefault = spiProviderMeta.getIsDefault();
                         if (BooleanUtils.isTrue(isDefault)){
                             if (existDefaultProvider){
-                                throw new RuntimeException(spiProviderMeta.getClassName() + " : 请勿重复定义默认实现");
+                                throw new SpiRuntimeException(ErrorCode.REPEAT_DEFAULT_PROVIDER, spiProviderMeta.getClassName() + " : 请勿重复定义默认实现");
                             }
                             identityCode = String.format(CommonConfig.defaultIdentityCode, spiMeta.getInterfaceName());
                             existDefaultProvider = true;
@@ -71,7 +73,7 @@ public class SpiCacheLoader {
 
                         SpiProviderMeta oldSpiProvider = proxyMap.get(identityCode);
                         if (oldSpiProvider != null){
-                            throw new RuntimeException("SPI：" + interfaceName + " 存在多个相同身份code: " + identityCode);
+                            throw new SpiRuntimeException(ErrorCode.MUCH_IDENTICAL_IDENTITY, interfaceName ,identityCode);
                         }
 
                         proxyMap.put(identityCode, spiProviderMeta);
@@ -88,7 +90,7 @@ public class SpiCacheLoader {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new SpiRuntimeException(e);
         }
     }
 

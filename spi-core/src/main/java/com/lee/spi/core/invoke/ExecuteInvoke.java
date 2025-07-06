@@ -3,6 +3,8 @@ package com.lee.spi.core.invoke;
 import com.lee.spi.core.cache.SpiCache;
 import com.lee.spi.core.cache.SpiCacheLoader;
 import com.lee.spi.core.config.CommonConfig;
+import com.lee.spi.core.exception.ErrorCode;
+import com.lee.spi.core.exception.SpiRuntimeException;
 import com.lee.spi.core.meta.SpiProviderMeta;
 import com.lee.spi.core.proxy.SpiProxy;
 import com.lee.spi.core.util.EnvUtils;
@@ -46,23 +48,19 @@ public class ExecuteInvoke<T> {
 
         SpiProxy spiProxy = SpiCache.spiSpiProxyCache.get(spiInterface.getName());
         if (spiProxy == null) {
-            throw new RuntimeException("未找到spi实现: " + spiInterface.getName());
+            throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER, spiInterface.getName());
         }
         Map<String, SpiProviderMeta> spiProviderMetaMap = spiProxy.getSpiProxyMap();
         if (spiProviderMetaMap == null || spiProviderMetaMap.isEmpty()) {
-            throw new RuntimeException("未找到spi具体实现: " + spiInterface.getName());
+            throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER, spiInterface.getName());
         }
         SpiProviderMeta spiProviderMeta = spiProviderMetaMap.get(code);
         if (spiProviderMeta == null) {
-
             String defaultCode = String.format(CommonConfig.defaultIdentityCode, spiInterface.getName());
-
             spiProviderMeta = spiProviderMetaMap.get(defaultCode);
-
             if (spiProviderMeta == null) {
-                throw new RuntimeException("业务身份: " + code + ", 未找到spi具体实现: " + spiInterface.getName());
+                throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER_BY_IDENTITY, code, spiInterface.getName());
             }
-
         }
         // spring环境
         if (EnvUtils.isSpringEnvironment()){

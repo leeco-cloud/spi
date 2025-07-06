@@ -10,8 +10,6 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,20 +18,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 服务订阅者进行BPP扫描 生成代理
  * @author yanhuai lee
  */
-public class SpiBeanPostProcessor implements BeanPostProcessor, BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
+public class SpiBeanPostProcessor implements BeanPostProcessor, BeanDefinitionRegistryPostProcessor {
 
     public static final AtomicBoolean isSpringEnv = new AtomicBoolean(false);
 
     private final AtomicBoolean registerSpi = new AtomicBoolean(false);
-
-    public static ApplicationContext applicationContext;
-
-    public static ConfigurableListableBeanFactory configurableListableBeanFactory;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        SpiBeanPostProcessor.applicationContext = applicationContext;
-    }
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -75,6 +64,5 @@ public class SpiBeanPostProcessor implements BeanPostProcessor, BeanDefinitionRe
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         isSpringEnv.set(true);
-        SpiBeanPostProcessor.configurableListableBeanFactory = beanFactory;
     }
 }

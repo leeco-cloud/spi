@@ -32,7 +32,7 @@ public class SpiLoader {
                 return JSON.parseArray(content.toString(), SpiMeta.class);
             }
         } catch (IOException e) {
-            throw new UncheckedIOException("读取Identity配置失败", e);
+            throw new UncheckedIOException("读取Spi配置失败:" + CommonConfig.spiFilePath, e);
         }
     }
 

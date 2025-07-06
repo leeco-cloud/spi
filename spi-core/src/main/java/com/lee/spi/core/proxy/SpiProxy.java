@@ -2,6 +2,8 @@ package com.lee.spi.core.proxy;
 
 import com.lee.spi.core.cache.SpiCache;
 import com.lee.spi.core.config.CommonConfig;
+import com.lee.spi.core.exception.ErrorCode;
+import com.lee.spi.core.exception.SpiRuntimeException;
 import com.lee.spi.core.meta.SpiMeta;
 import com.lee.spi.core.meta.SpiProviderMeta;
 import com.lee.spi.core.spring.BizSession;
@@ -45,7 +47,7 @@ public class SpiProxy implements InvocationHandler {
             return method.invoke(bean, args);
         }
 
-        throw new RuntimeException("未找到spi具体实现: " + spiMeta.getInterfaceName());
+        throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER, spiMeta.getInterfaceName());
     }
 
     private Object handleObjectMethod(Object proxy, Method method, Object[] args) {
