@@ -15,7 +15,7 @@ public class SpiExampleApplication {
 //    public static void main(String[] args) {
 //        SpringApplication.run(SpiExampleApplication.class, args);
 //    }
-//
+
     public static void main(String[] args) {
         try {
             String result = SpiInvoke

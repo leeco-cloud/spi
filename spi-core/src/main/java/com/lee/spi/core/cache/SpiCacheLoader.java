@@ -1,6 +1,7 @@
 package com.lee.spi.core.cache;
 
 
+import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.loader.IdentityLoader;
 import com.lee.spi.core.loader.SpiLoader;
 import com.lee.spi.core.loader.SpiProviderLoader;
@@ -8,6 +9,8 @@ import com.lee.spi.core.meta.SpiMeta;
 import com.lee.spi.core.meta.SpiProviderMeta;
 import com.lee.spi.core.proxy.SpiProxy;
 import com.lee.spi.core.util.ProxyUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,9 +45,23 @@ public class SpiCacheLoader {
                     String interfaceName = spiMeta.getInterfaceName();
                     Class<?> interfaceType = Class.forName(interfaceName);
                     List<SpiProviderMeta> spiProviderMetas = SpiProviderLoader.load(interfaceType);
+                    boolean existDefaultProvider = false;
                     for (SpiProviderMeta spiProviderMeta : spiProviderMetas) {
 
                         String identityCode = spiProviderMeta.getIdentityCode();
+
+                        Boolean isDefault = spiProviderMeta.getIsDefault();
+                        if (BooleanUtils.isTrue(isDefault)){
+                            if (existDefaultProvider){
+                                throw new RuntimeException(spiProviderMeta.getClassName() + " : 请勿重复定义默认实现");
+                            }
+                            identityCode = String.format(CommonConfig.defaultIdentityCode, spiMeta.getInterfaceName());
+                            existDefaultProvider = true;
+                        }else{
+                            if (StringUtils.isBlank(identityCode)){
+                                throw new RuntimeException(spiProviderMeta.getClassName() + " : 未定义 identity code");
+                            }
+                        }
 
                         Map<String, SpiProviderMeta> proxyMap = spiProxy.getSpiProxyMap();
                         if (proxyMap == null){
@@ -63,6 +80,7 @@ public class SpiCacheLoader {
                         spiProxy.setSpiProxyMap(proxyMap);
 
                         Object proxy = ProxyUtils.getProxy(interfaceType, spiProxy);
+
                         SpiCache.spiProxyInstanceCache.put(spiMeta.getInterfaceName(), proxy);
                         SpiCache.spiSpiProxyCache.put(spiMeta.getInterfaceName(), spiProxy);
                         SpiCache.spiProviderClassNames.add(spiProviderMeta.getClassName());

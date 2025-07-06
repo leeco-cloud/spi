@@ -1,11 +1,13 @@
 package com.lee.spi.core.proxy;
 
 import com.lee.spi.core.cache.SpiCache;
-import com.lee.spi.core.spring.BizSession;
+import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.meta.SpiMeta;
 import com.lee.spi.core.meta.SpiProviderMeta;
+import com.lee.spi.core.spring.BizSession;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -33,6 +35,10 @@ public class SpiProxy implements InvocationHandler {
         }
 
         String identity = BizSession.IDENTITY.get();
+        if (StringUtils.isBlank(identity)){
+            // 当前业务身份为空，则赋值默认实现的缓存key
+            identity = String.format(CommonConfig.defaultIdentityCode, spiMeta.getInterfaceName());
+        }
         if (spiProxyMap.containsKey(identity)) {
             SpiProviderMeta spiProviderMeta = spiProxyMap.get(identity);
             Object bean = SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName());

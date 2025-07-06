@@ -6,7 +6,7 @@ import com.lee.spi.spi.example.example.spi.SpiTestInterface2;
 /**
  * @author yanhuai lee
  */
-@SpiProvider(identityCode = "ccc")
+@SpiProvider(identityCode = "ccc", isDefault = true)
 public class SpiTestInterfaceImpl4 extends SpiTestInterfaceImpl implements SpiTestInterface2 {
 
     @Override

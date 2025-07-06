@@ -2,6 +2,7 @@ package com.lee.spi.core.invoke;
 
 import com.lee.spi.core.cache.SpiCache;
 import com.lee.spi.core.cache.SpiCacheLoader;
+import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.meta.SpiProviderMeta;
 import com.lee.spi.core.proxy.SpiProxy;
 import com.lee.spi.core.util.EnvUtils;
@@ -53,7 +54,15 @@ public class ExecuteInvoke<T> {
         }
         SpiProviderMeta spiProviderMeta = spiProviderMetaMap.get(code);
         if (spiProviderMeta == null) {
-            throw new RuntimeException("业务身份: " + code + ", 未找到spi具体实现: " + spiInterface.getName());
+
+            String defaultCode = String.format(CommonConfig.defaultIdentityCode, spiInterface.getName());
+
+            spiProviderMeta = spiProviderMetaMap.get(defaultCode);
+
+            if (spiProviderMeta == null) {
+                throw new RuntimeException("业务身份: " + code + ", 未找到spi具体实现: " + spiInterface.getName());
+            }
+
         }
         // spring环境
         if (EnvUtils.isSpringEnvironment()){
