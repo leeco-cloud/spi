@@ -4,6 +4,7 @@ import com.lee.spi.core.cache.SpiCache;
 import com.lee.spi.core.cache.SpiCacheLoader;
 import com.lee.spi.core.meta.SpiProviderMeta;
 import com.lee.spi.core.proxy.SpiProxy;
+import com.lee.spi.core.util.EnvUtils;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -40,7 +41,8 @@ public class ExecuteInvoke<T> {
     }
 
     private <T> T getInstance() throws Exception{
-        SpiCacheLoader.init();
+        SpiCacheLoader.start();
+
         SpiProxy spiProxy = SpiCache.spiSpiProxyCache.get(spiInterface.getName());
         if (spiProxy == null) {
             throw new RuntimeException("未找到spi实现: " + spiInterface.getName());
@@ -53,6 +55,11 @@ public class ExecuteInvoke<T> {
         if (spiProviderMeta == null) {
             throw new RuntimeException("业务身份: " + code + ", 未找到spi具体实现: " + spiInterface.getName());
         }
+        // spring环境
+        if (EnvUtils.isSpringEnvironment()){
+            return (T) SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName());
+        }
+        // 非spring环境
         return (T) spiProviderMeta.getClassType().newInstance();
     }
 }

@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
+ * Javassist工具类
  * @author yanhuai lee
  */
 public class JavassistUtils {

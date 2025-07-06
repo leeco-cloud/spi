@@ -1,9 +1,9 @@
 package com.lee.spi.core.proxy;
 
 import com.lee.spi.core.cache.SpiCache;
+import com.lee.spi.core.spring.BizSession;
 import com.lee.spi.core.meta.SpiMeta;
 import com.lee.spi.core.meta.SpiProviderMeta;
-import com.lee.spi.core.spring.ThreadContextBeanSelectionStrategy;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,7 +32,7 @@ public class SpiProxy implements InvocationHandler {
             return handleObjectMethod(proxy, method, args);
         }
 
-        String identity = ThreadContextBeanSelectionStrategy.BEAN_NAME_HOLDER.get();
+        String identity = BizSession.IDENTITY.get();
         if (spiProxyMap.containsKey(identity)) {
             SpiProviderMeta spiProviderMeta = spiProxyMap.get(identity);
             Object bean = SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName());

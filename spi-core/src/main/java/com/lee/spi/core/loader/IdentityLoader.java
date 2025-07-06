@@ -15,37 +15,25 @@ import java.util.List;
  */
 public class IdentityLoader {
 
-    public static volatile List<IdentityMeta> cache = null;
-
     public static List<IdentityMeta> load() {
-        if (cache != null) {
-            return cache;
-        }
-        synchronized (IdentityLoader.class) {
-            if (cache == null) {
-                synchronized (IdentityLoader.class) {
-                    try (InputStream inputStream = IdentityLoader.class.getResourceAsStream("/" + CommonConfig.identityFilePath)) {
-                        if (inputStream == null) {
-                            return null;
-                        }
-                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-                            StringBuilder content = new StringBuilder();
-                            String line;
-                            while ((line = reader.readLine()) != null) {
-                                content.append(line);
-                            }
-                            if (StringUtils.isBlank(content.toString())){
-                                return null;
-                            }
-                            cache = JSON.parseArray(content.toString(), IdentityMeta.class);
-                        }
-                    } catch (IOException e) {
-                        throw new UncheckedIOException("读取Identity配置失败", e);
-                    }
-                }
+        try (InputStream inputStream = IdentityLoader.class.getResourceAsStream("/" + CommonConfig.identityFilePath)) {
+            if (inputStream == null) {
+                return null;
             }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line);
+                }
+                if (StringUtils.isBlank(content.toString())){
+                    return null;
+                }
+                return JSON.parseArray(content.toString(), IdentityMeta.class);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException("读取Identity配置失败", e);
         }
-        return cache;
     }
 
 }

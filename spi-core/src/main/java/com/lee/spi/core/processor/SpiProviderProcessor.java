@@ -17,9 +17,9 @@ import java.io.Writer;
 import java.util.*;
 
 /**
- * Spi注解编译期执行器
+ * SpiProvider注解编译期执行器
  * @author yanhuai lee
- * @see Spi
+ * @see com.lee.spi.core.annotation.SpiProvider
  */
 @AutoService(Processor.class)
 @SupportedAnnotationTypes({"com.lee.spi.core.annotation.SpiProvider"})
@@ -27,7 +27,7 @@ import java.util.*;
 @SupportedOptions({"debug", "verify"})
 public class SpiProviderProcessor extends CommonProcessor {
 
-    private Map<String, List<String>> cache = new HashMap<>();;
+    private final Map<String, List<String>> cache = new HashMap<>();;
 
     @Override
     protected void processAnnotations(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -49,8 +49,6 @@ public class SpiProviderProcessor extends CommonProcessor {
                         }
                     }
                 }
-//                SpiProviderMeta spiProviderMeta = new SpiProviderMeta(classFullName, spiProvider.identityCode(), spiProvider.desc(), spiProvider.isDefault());
-//                metaInfo.add(spiProviderMeta);
             }
         }
     }
@@ -73,7 +71,7 @@ public class SpiProviderProcessor extends CommonProcessor {
     }
 
     /**
-     * spi实现为匿名内部类
+     * 考虑spi实现为匿名内部类
      */
     private String getBinaryNameImpl(TypeElement element, String className) {
         Element enclosingElement = element.getEnclosingElement();

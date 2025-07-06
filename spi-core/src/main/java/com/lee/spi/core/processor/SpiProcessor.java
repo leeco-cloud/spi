@@ -41,28 +41,9 @@ public class SpiProcessor extends CommonProcessor {
             // 处理加在接口上的注解
             if (element.getKind() == ElementKind.INTERFACE) {
                 TypeElement interfaceElement = (TypeElement) element;
-//                for (Element enclosedElement : interfaceElement.getEnclosedElements()) {
-//                    if (enclosedElement.getKind() == ElementKind.METHOD) {
-//                        processMethod(spi, metaInfo, interfaceElement.getQualifiedName(), (ExecutableElement) enclosedElement);
-//                    }
-//                }
-
                 SpiMeta spiMeta = new SpiMeta(interfaceElement.getQualifiedName().toString(), spi.code(), spi.name(), spi.desc(), spi.priority());
                 spiMetas.add(spiMeta);
-//                metaInfo.add(spiMeta);
-
             }
-            // 处理加在方法上的注解
-//            else if (element.getKind() == ElementKind.METHOD) {
-//                // 当前方法
-//                ExecutableElement executableElement = (ExecutableElement) element;
-//                // 方法所在接口
-//                Element interfaceElement = executableElement.getEnclosingElement();
-//                if (interfaceElement.getKind() == ElementKind.INTERFACE && interfaceElement instanceof TypeElement) {
-//                    TypeElement interfaceTypeElement = (TypeElement) (executableElement.getEnclosingElement());
-//                    processMethod(spi, metaInfo, interfaceTypeElement.getQualifiedName(), executableElement);
-//                }
-//            }
         }
         if (!spiMetas.isEmpty()) {
             content = JSON.toJSONString(spiMetas);
@@ -83,21 +64,5 @@ public class SpiProcessor extends CommonProcessor {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage());
         }
     }
-
-//    private void processMethod(Spi spi, List<Object> metaInfo, Name interfaceName, ExecutableElement methodElement) {
-//        // 获取方法名
-//        String methodName = methodElement.getSimpleName().toString();
-//
-//        // 获取入参类型列表
-//        List<String> paramTypes = new ArrayList<>();
-//        for (VariableElement param : methodElement.getParameters()) {
-//            TypeMirror paramType = param.asType();
-//            paramTypes.add(paramType.toString()); // 获取参数类型的字符串表示
-//        }
-//
-//        SpiMeta spiMeta = new SpiMeta(interfaceName.toString(), methodName, paramTypes, spi.code(), spi.name(), spi.desc(), spi.priority());
-//
-//        metaInfo.add(spiMeta);
-//    }
 
 }

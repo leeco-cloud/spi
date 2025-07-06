@@ -22,10 +22,14 @@ public class SpiCacheLoader {
 
     private static final AtomicBoolean init = new AtomicBoolean(false);
 
-    public static void init(){
-        if (init.get()){
-            return;
+    public static void start() {
+        if (!init.get()){
+            init();
         }
+        init.set(true);
+    }
+
+    private static void init(){
         try{
             SpiCache.identityMetasCache = IdentityLoader.load();
             SpiCache.spiMetasCache = SpiLoader.load();
@@ -65,7 +69,6 @@ public class SpiCacheLoader {
                     }
                 }
             }
-            init.set(true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

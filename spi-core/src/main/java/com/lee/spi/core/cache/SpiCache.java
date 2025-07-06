@@ -24,8 +24,6 @@ public class SpiCache {
 
     public static Map<String, Object> spiProviderInstanceBeanCache = new ConcurrentHashMap<>();
 
-//    public static Map<SpiMeta, SpiProxy> spiProviderMetasCache = new ConcurrentHashMap<>();
-
     public static Map<String, SpiProxy> spiSpiProxyCache = new ConcurrentHashMap<>();
 
     public static Map<String, Object> spiProxyInstanceCache = new ConcurrentHashMap<>();
