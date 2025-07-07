@@ -1,7 +1,6 @@
 package com.lee.spi.core.invoke;
 
 import com.lee.spi.core.cache.SpiCache;
-import com.lee.spi.core.cache.SpiCacheLoader;
 import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.exception.ErrorCode;
 import com.lee.spi.core.exception.SpiRuntimeException;
@@ -44,7 +43,6 @@ public class ExecuteInvoke<T> {
     }
 
     private <T> T getInstance() throws Exception{
-        SpiCacheLoader.start();
 
         SpiProxy spiProxy = SpiCache.spiSpiProxyCache.get(spiInterface.getName());
         if (spiProxy == null) {
