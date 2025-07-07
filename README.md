@@ -55,7 +55,7 @@ public class SpiTestInterfaceImpl implements SpiTestInterface {
 先定义Identity声明产品code和优先级priority(默认是最低优先级)
 ```java
 // 最高优先级
-@Identity(code = "product1", priority = 1)
+@Product(code = "product1", priority = 1)
 public class IdentityProduct {
 
 }
@@ -63,7 +63,7 @@ public class IdentityProduct {
 
 ```java
 
-@Product(code = "product1")
+@SpiProvider(code = "product1")
 public class SpiProductTestInterfaceImpl implements SpiTestInterface {
 
     @Override
