@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.dreams-summer</groupId>
         <artifactId>spi</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>spi-example</artifactId>
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.dreams-summer</groupId>
             <artifactId>spi-core</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>
