@@ -17,9 +17,11 @@ import java.lang.annotation.Target;
 public @interface SpiProvider {
 
     /**
-     * 当前spi实现对应的业务身份
+     * 当前spi实现对应的业务身份code/产品身份code
+     * @see Identity
+     * @see Product
      */
-    String identityCode();
+    String code();
 
     /**
      * spi实现描述

@@ -1,7 +1,8 @@
 [
   {
-    "aaa":[
-      "product1"
+    "identity":"bizCode",
+    "products":[
+      "product1", "product2"
     ]
   }
 ]

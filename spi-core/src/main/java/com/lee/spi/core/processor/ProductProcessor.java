@@ -2,9 +2,9 @@ package com.lee.spi.core.processor;
 
 import com.alibaba.fastjson.JSON;
 import com.google.auto.service.AutoService;
-import com.lee.spi.core.annotation.Identity;
+import com.lee.spi.core.annotation.Product;
 import com.lee.spi.core.config.CommonConfig;
-import com.lee.spi.core.meta.IdentityMeta;
+import com.lee.spi.core.meta.ProductMeta;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.processing.*;
@@ -21,30 +21,30 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Identity注解编译期执行器
+ * Product注解编译期执行器
  * @author yanhuai lee
- * @see com.lee.spi.core.annotation.Identity
+ * @see com.lee.spi.core.annotation.Product
  */
 @AutoService(Processor.class)
-@SupportedAnnotationTypes({"com.lee.spi.core.annotation.Identity"})
+@SupportedAnnotationTypes({"com.lee.spi.core.annotation.Product"})
 @SupportedSourceVersion(SourceVersion.RELEASE_11)
 @SupportedOptions({"debug", "verify"})
-public class IdentityProcessor extends CommonProcessor {
+public class ProductProcessor extends CommonProcessor {
 
     private String content;
 
     @Override
     protected void processAnnotations(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        List<IdentityMeta> identities = new ArrayList<>();
-        for (Element element : roundEnv.getElementsAnnotatedWith(Identity.class)) {
+        List<ProductMeta> productMetaList = new ArrayList<>();
+        for (Element element : roundEnv.getElementsAnnotatedWith(Product.class)) {
             if (element.getKind() == ElementKind.CLASS) {
-                Identity annotation = element.getAnnotation(Identity.class);
-                IdentityMeta identityMeta = new IdentityMeta(annotation.code(), annotation.name(), annotation.desc());
-                identities.add(identityMeta);
+                Product annotation = element.getAnnotation(Product.class);
+                ProductMeta productMeta = new ProductMeta(annotation.code(), annotation.name(), annotation.desc(), annotation.priority());
+                productMetaList.add(productMeta);
             }
         }
-        if (!identities.isEmpty()) {
-            content = JSON.toJSONString(identities);
+        if (!productMetaList.isEmpty()) {
+            content = JSON.toJSONString(productMetaList);
         }
     }
 
@@ -55,7 +55,7 @@ public class IdentityProcessor extends CommonProcessor {
                 return;
             }
             Filer filer = processingEnv.getFiler();
-            Writer writer = filer.createResource(StandardLocation.CLASS_OUTPUT, "", CommonConfig.identityFilePath
+            Writer writer = filer.createResource(StandardLocation.CLASS_OUTPUT, "", CommonConfig.productFilePath
             ).openWriter();
             writer.write(content);
             writer.close();

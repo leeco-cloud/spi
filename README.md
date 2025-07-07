@@ -29,7 +29,7 @@ public interface SpiTestInterface {
 
 且添加了该注解的实现类默认是注册成spring的bean，因此实现类内部可以使用@Autowired等spring能力
 ```java
-@SpiProvider(identityCode = "bizCode")
+@SpiProvider(code = "bizCode")
 public class SpiTestInterfaceImpl implements SpiTestInterface {
 
     @Override
@@ -41,7 +41,7 @@ public class SpiTestInterfaceImpl implements SpiTestInterface {
 ```
 
 ```java
-@SpiProvider(identityCode = "bizCode2")
+@SpiProvider(code = "bizCode2")
 public class SpiTestInterfaceImpl implements SpiTestInterface {
 
     @Override
@@ -63,7 +63,7 @@ public class IdentityProduct {
 
 ```java
 
-@Product(identityCode = "product1")
+@Product(code = "product1")
 public class SpiProductTestInterfaceImpl implements SpiTestInterface {
 
     @Override
@@ -78,8 +78,9 @@ public class SpiProductTestInterfaceImpl implements SpiTestInterface {
 ```json
 [
   {
-    "bizCode":[
-      "product1"
+    "identity":"bizCode",
+    "product":[
+      "product1", "product2"
     ]
   }
 ]

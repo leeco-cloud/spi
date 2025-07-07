@@ -5,7 +5,7 @@ import com.lee.spi.core.annotation.SpiProvider;
 /**
  * @author yanhuai lee
  */
-@SpiProvider(identityCode = "aaa")
+@SpiProvider(code = "bizCode")
 public class SpiTestInterfaceImpl2 extends SpiTestInterfaceImpl1 {
 
     @Override

@@ -13,12 +13,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class IdentityMeta {
+public class ProductMeta {
 
     private String code;
 
     private String name;
 
     private String desc;
+
+    private Integer priority;
 
 }

@@ -4,10 +4,14 @@ import com.lee.spi.core.cache.SpiCache;
 import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.exception.ErrorCode;
 import com.lee.spi.core.exception.SpiRuntimeException;
+import com.lee.spi.core.meta.RelationMeta;
 import com.lee.spi.core.meta.SpiProviderMeta;
 import com.lee.spi.core.proxy.SpiProxy;
 import com.lee.spi.core.util.EnvUtils;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -30,20 +34,26 @@ public class ExecuteInvoke<T> {
      * 无返回值
      */
     public void execute(Consumer<T> action) throws Exception {
-        T instance = getInstance();
-        action.accept(instance);
+        List<T> instance = getInstance();
+        for (T t : instance) {
+            action.accept(t);
+        }
     }
 
     /**
      * 有返回值
      */
     public <R> R executeGetResult(Function<T, R> action) throws Exception {
-        T instance = getInstance();
-        return action.apply(instance);
+        List<T> instance = getInstance();
+        R result = null;
+        for (T t : instance) {
+            result = action.apply(t);
+        }
+        return result;
     }
 
-    private <T> T getInstance() throws Exception{
-
+    private <T> List<T> getInstance() throws Exception{
+        // 找到spi业务实现
         SpiProxy spiProxy = SpiCache.spiSpiProxyCache.get(spiInterface.getName());
         if (spiProxy == null) {
             throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER, spiInterface.getName());
@@ -60,11 +70,41 @@ public class ExecuteInvoke<T> {
                 throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER_BY_IDENTITY, code, spiInterface.getName());
             }
         }
+
+        List<T> result = new ArrayList<>();
+
         // spring环境
         if (EnvUtils.isSpringEnvironment()){
-            return (T) SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName());
+            result.add((T) SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName()));
+        }else{
+            // 非spring环境
+            result.add((T) spiProviderMeta.getClassType().newInstance());
         }
-        // 非spring环境
-        return (T) spiProviderMeta.getClassType().newInstance();
+
+        // 找到叠加的所有产品实现
+        List<RelationMeta> relationMetasCache = SpiCache.relationMetasCache;
+        if (CollectionUtils.isEmpty(relationMetasCache)) {
+            return result;
+        }
+        for (RelationMeta relationMeta : relationMetasCache) {
+            if (!relationMeta.getIdentity().equals(code)) {
+                continue;
+            }
+            List<String> products = relationMeta.getProducts();
+            for (String product : products) {
+                SpiProviderMeta spiProviderMetaProduct = spiProviderMetaMap.get(product);
+                if (spiProviderMetaProduct == null) {
+                    throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER_BY_PRODUCT, product, spiInterface.getName());
+                }
+                // spring环境
+                if (EnvUtils.isSpringEnvironment()){
+                    result.add((T) SpiCache.spiProviderInstanceBeanCache.get(spiProviderMetaProduct.getClassName()));
+                }else{
+                    // 非spring环境
+                    result.add((T) spiProviderMetaProduct.getClassType().newInstance());
+                }
+            }
+        }
+        return result;
     }
 }

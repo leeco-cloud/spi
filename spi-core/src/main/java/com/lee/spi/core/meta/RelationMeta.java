@@ -5,20 +5,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
- * IdentityMeta
+ * RelationMeta
  * @author yanhuai lee
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class IdentityMeta {
+public class RelationMeta {
 
-    private String code;
+    private String identity;
 
-    private String name;
-
-    private String desc;
+    private List<String> products;
 
 }

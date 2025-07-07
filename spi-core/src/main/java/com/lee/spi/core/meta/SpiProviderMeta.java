@@ -25,7 +25,7 @@ public class SpiProviderMeta {
 
     private Class<?> interFaceNameClassType;
 
-    private String identityCode;
+    private String code;
 
     private String desc;
 

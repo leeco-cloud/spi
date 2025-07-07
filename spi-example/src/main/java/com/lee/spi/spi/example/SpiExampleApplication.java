@@ -19,7 +19,7 @@ public class SpiExampleApplication {
     public static void main(String[] args) {
         try {
             String result = SpiInvoke
-                    .identity("ccc")
+                    .identity("bizCode")
                     .invoke(SpiTestInterface.class)
                     .executeGetResult(service -> service.testMethod("0"));
             System.out.println(result);

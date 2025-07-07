@@ -27,7 +27,7 @@ public class SpiProviderLoader {
             if (annotation != null) {
                 SpiProviderMeta spiProviderMeta = new SpiProviderMeta(
                         spiImplObj.getClass().getName(), spiImplObj.getClass(),
-                        spiInterface.getName(), spiInterface, annotation.identityCode(), annotation.desc(), annotation.isDefault()
+                        spiInterface.getName(), spiInterface, annotation.code(), annotation.desc(), annotation.isDefault()
                 );
                 data.add(spiProviderMeta);
             }

@@ -4,9 +4,7 @@ package com.lee.spi.core.cache;
 import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.exception.ErrorCode;
 import com.lee.spi.core.exception.SpiRuntimeException;
-import com.lee.spi.core.loader.IdentityLoader;
-import com.lee.spi.core.loader.SpiLoader;
-import com.lee.spi.core.loader.SpiProviderLoader;
+import com.lee.spi.core.loader.*;
 import com.lee.spi.core.meta.SpiMeta;
 import com.lee.spi.core.meta.SpiProviderMeta;
 import com.lee.spi.core.proxy.SpiProxy;
@@ -37,6 +35,8 @@ public class SpiCacheLoader {
     private static void init(){
         try{
             SpiCache.identityMetasCache = IdentityLoader.load();
+            SpiCache.productMetasCache = ProductLoader.load();
+            SpiCache.relationMetasCache = RelationLoader.load();
             SpiCache.spiMetasCache = SpiLoader.load();
             if (SpiCache.spiMetasCache != null) {
                 for (SpiMeta spiMeta : SpiCache.spiMetasCache) {
@@ -50,7 +50,7 @@ public class SpiCacheLoader {
                     boolean existDefaultProvider = false;
                     for (SpiProviderMeta spiProviderMeta : spiProviderMetas) {
 
-                        String identityCode = spiProviderMeta.getIdentityCode();
+                        String identityCode = spiProviderMeta.getCode();
 
                         Boolean isDefault = spiProviderMeta.getIsDefault();
                         if (BooleanUtils.isTrue(isDefault)){

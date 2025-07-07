@@ -28,6 +28,4 @@ public @interface Identity {
      */
     String desc() default "";
 
-    int priority() default 1000;
-
 }

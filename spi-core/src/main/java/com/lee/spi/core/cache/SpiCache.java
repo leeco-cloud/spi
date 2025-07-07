@@ -1,6 +1,8 @@
 package com.lee.spi.core.cache;
 
 import com.lee.spi.core.meta.IdentityMeta;
+import com.lee.spi.core.meta.ProductMeta;
+import com.lee.spi.core.meta.RelationMeta;
 import com.lee.spi.core.meta.SpiMeta;
 import com.lee.spi.core.proxy.SpiProxy;
 
@@ -17,6 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SpiCache {
 
     public static List<IdentityMeta> identityMetasCache;
+
+    public static List<ProductMeta> productMetasCache;
+
+    public static List<RelationMeta> relationMetasCache;
 
     public static List<SpiMeta> spiMetasCache;
 

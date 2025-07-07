@@ -5,7 +5,7 @@ import com.lee.spi.core.annotation.Identity;
 /**
  * @author yanhuai lee
  */
-@Identity(code = "aaa")
+@Identity(code = "bizCode")
 public class IdentityTest1 {
 
 }
