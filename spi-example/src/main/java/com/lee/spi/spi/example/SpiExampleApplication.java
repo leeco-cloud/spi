@@ -12,28 +12,28 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan({"com.lee.spi"})
 public class SpiExampleApplication {
 
-//    public static void main(String[] args) {
-//        SpringApplication.run(SpiExampleApplication.class, args);
-//    }
-
     public static void main(String[] args) {
-        try {
-            String result = SpiInvoke
-                    .identity("bizCode")
-                    .invoke(SpiTestInterface.class)
-                    .executeGetResult(service -> service.testMethod("0"));
-            System.out.println(result);
-
-            result = SpiInvoke
-                    .identity("ccc")
-                    .invoke(SpiTestInterface2.class)
-                    .executeGetResult(service -> service.testMethod2("0"));
-            System.out.println(result);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+        SpringApplication.run(SpiExampleApplication.class, args);
     }
+//
+//    public static void main(String[] args) {
+//        try {
+//            String result = SpiInvoke
+//                    .identity("bizCode")
+//                    .invoke(SpiTestInterface.class)
+//                    .executeGetResult(service -> service.testMethod("0"));
+//            System.out.println(result);
+//
+//            result = SpiInvoke
+//                    .identity("ccc")
+//                    .invoke(SpiTestInterface2.class)
+//                    .executeGetResult(service -> service.testMethod2("0"));
+//            System.out.println(result);
+//
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//    }
 
 }

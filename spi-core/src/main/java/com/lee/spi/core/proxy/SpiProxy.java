@@ -4,15 +4,19 @@ import com.lee.spi.core.cache.SpiCache;
 import com.lee.spi.core.config.CommonConfig;
 import com.lee.spi.core.exception.ErrorCode;
 import com.lee.spi.core.exception.SpiRuntimeException;
+import com.lee.spi.core.meta.RelationMeta;
 import com.lee.spi.core.meta.SpiMeta;
 import com.lee.spi.core.meta.SpiProviderMeta;
 import com.lee.spi.core.spring.BizSession;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,13 +45,52 @@ public class SpiProxy implements InvocationHandler {
             // 当前业务身份为空，则赋值默认实现的缓存key
             identity = String.format(CommonConfig.defaultIdentityCode, spiMeta.getInterfaceName());
         }
-        if (spiProxyMap.containsKey(identity)) {
-            SpiProviderMeta spiProviderMeta = spiProxyMap.get(identity);
-            Object bean = SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName());
-            return method.invoke(bean, args);
+
+        List<Object> allBean = new ArrayList<>();
+
+        if (!spiProxyMap.containsKey(identity)) {
+            identity = String.format(CommonConfig.defaultIdentityCode, spiMeta.getInterfaceName());
         }
 
-        throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER, spiMeta.getInterfaceName());
+        SpiProviderMeta spiProviderMeta = spiProxyMap.get(identity);
+        if (spiProviderMeta == null) {
+            throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER, spiMeta.getInterfaceName());
+        }
+        Object bean = SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName());
+        allBean.add(bean);
+
+        findAllProductRunningBean(identity, allBean);
+
+        Object result = null;
+
+        for (Object instance : allBean) {
+            result = method.invoke(instance, args);
+        }
+
+        return result;
+    }
+
+    /**
+     * 找到叠加的所有产品实现
+     */
+    private void findAllProductRunningBean(String identity, List<Object> allBean) {
+        List<RelationMeta> relationMetasCache = SpiCache.relationMetasCache;
+        if (CollectionUtils.isEmpty(relationMetasCache)) {
+            return;
+        }
+        for (RelationMeta relationMeta : relationMetasCache) {
+            if (!relationMeta.getIdentity().equals(identity)) {
+                continue;
+            }
+            List<String> products = relationMeta.getProducts();
+            for (String product : products) {
+                SpiProviderMeta spiProviderMeta = spiProxyMap.get(product);
+                Object bean = SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName());
+                if (bean != null) {
+                    allBean.add(bean);
+                }
+            }
+        }
     }
 
     private Object handleObjectMethod(Object proxy, Method method, Object[] args) {
