@@ -2,7 +2,6 @@ package com.lee.spi.remote.rpc.api;
 
 import com.lee.spi.core.meta.RelationMeta;
 import com.lee.spi.core.remote.SpiRemoteApi;
-import org.apache.dubbo.config.ServiceConfig;
 
 import java.lang.reflect.Method;
 import java.util.List;
