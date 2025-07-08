@@ -34,4 +34,7 @@ public class SpiCache {
 
     public static Map<String, Object> spiProxyInstanceCache = new ConcurrentHashMap<>();
 
+    public static Map<String, Set<String>> spiProviderSpiCache = new ConcurrentHashMap<>();
+
+
 }

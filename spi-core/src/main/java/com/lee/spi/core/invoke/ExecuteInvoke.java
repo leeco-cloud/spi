@@ -7,12 +7,14 @@ import com.lee.spi.core.exception.SpiRuntimeException;
 import com.lee.spi.core.meta.RelationMeta;
 import com.lee.spi.core.meta.SpiProviderMeta;
 import com.lee.spi.core.proxy.SpiProxy;
+import com.lee.spi.core.remote.SpiRemoteApi;
 import com.lee.spi.core.util.EnvUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -33,7 +35,7 @@ public class ExecuteInvoke<T> {
     /**
      * 无返回值
      */
-    public void execute(Consumer<T> action) throws Exception {
+    public void execute(Consumer<Object> action) throws Exception {
         List<T> instance = getInstance();
         for (T t : instance) {
             action.accept(t);
@@ -52,13 +54,46 @@ public class ExecuteInvoke<T> {
         return result;
     }
 
-    private <T> List<T> getInstance() throws Exception{
-        // 找到spi业务实现
+    private List<T> getInstance() throws Exception{
+        List<T> result = new ArrayList<>();
+        Exception exception = null;
+
         SpiProxy spiProxy = SpiCache.spiSpiProxyCache.get(spiInterface.getName());
         if (spiProxy == null) {
             throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER, spiInterface.getName());
         }
         Map<String, SpiProviderMeta> spiProviderMetaMap = spiProxy.getSpiProxyMap();
+
+        // 找本地spi业务实现
+        try{
+            SpiProviderMeta spiProviderMeta = finalLocalProvider(spiProviderMetaMap);
+            // spring环境
+            if (EnvUtils.isSpringEnvironment()){
+                result.add((T) SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName()));
+            }else{
+                // 非spring环境
+                result.add((T) spiProviderMeta.getClassType().newInstance());
+            }
+        } catch (Exception e) {
+            exception = e;
+        }
+
+        if (CollectionUtils.isEmpty(result)){
+            // 本地实现没有找到 尝试寻找remote实现
+            findRemoteSpiProvider(code, spiInterface.getName(), result);
+            if (CollectionUtils.isEmpty(result)){
+                throw exception;
+            }
+        }
+
+        // 找到叠加的所有产品实现
+        findAllProductProvider(spiProviderMetaMap, result);
+
+        return result;
+    }
+
+
+    private SpiProviderMeta finalLocalProvider(Map<String, SpiProviderMeta> spiProviderMetaMap) {
         if (spiProviderMetaMap == null || spiProviderMetaMap.isEmpty()) {
             throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER, spiInterface.getName());
         }
@@ -70,21 +105,37 @@ public class ExecuteInvoke<T> {
                 throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER_BY_IDENTITY, code, spiInterface.getName());
             }
         }
+        return spiProviderMeta;
+    }
 
-        List<T> result = new ArrayList<>();
-
-        // spring环境
-        if (EnvUtils.isSpringEnvironment()){
-            result.add((T) SpiCache.spiProviderInstanceBeanCache.get(spiProviderMeta.getClassName()));
-        }else{
-            // 非spring环境
-            result.add((T) spiProviderMeta.getClassType().newInstance());
+    private void findRemoteSpiProvider(String identity, String interfaceName, List<T> result) {
+        ServiceLoader<SpiRemoteApi> spiRemoteApis = ServiceLoader.load(SpiRemoteApi.class);
+        for (SpiRemoteApi spiRemoteApi : spiRemoteApis) {
+            Object remoteSpiProvider = spiRemoteApi.findRemoteSpiProvider(interfaceName, identity);
+            if (remoteSpiProvider != null) {
+                result.add((T) remoteSpiProvider);
+            }
         }
+    }
 
-        // 找到叠加的所有产品实现
+    private List<RelationMeta> findRemoteProductRelation() {
+        ServiceLoader<SpiRemoteApi> spiRemoteApis = ServiceLoader.load(SpiRemoteApi.class);
+        for (SpiRemoteApi spiRemoteApi : spiRemoteApis) {
+            List<RelationMeta> relationMetas = spiRemoteApi.findRemoteProductRelation();
+            if (!CollectionUtils.isEmpty(relationMetas)) {
+                return relationMetas;
+            }
+        }
+        return null;
+    }
+
+    private void findAllProductProvider(Map<String, SpiProviderMeta> spiProviderMetaMap, List<T> result) throws InstantiationException, IllegalAccessException {
         List<RelationMeta> relationMetasCache = SpiCache.relationMetasCache;
         if (CollectionUtils.isEmpty(relationMetasCache)) {
-            return result;
+            relationMetasCache = findRemoteProductRelation();
+            if (CollectionUtils.isEmpty(relationMetasCache)){
+                return;
+            }
         }
         for (RelationMeta relationMeta : relationMetasCache) {
             if (!relationMeta.getIdentity().equals(code)) {
@@ -93,18 +144,20 @@ public class ExecuteInvoke<T> {
             List<String> products = relationMeta.getProducts();
             for (String product : products) {
                 SpiProviderMeta spiProviderMetaProduct = spiProviderMetaMap.get(product);
-                if (spiProviderMetaProduct == null) {
-                    throw new SpiRuntimeException(ErrorCode.NOT_FIND_SPI_PROVIDER_BY_PRODUCT, product, spiInterface.getName());
-                }
-                // spring环境
-                if (EnvUtils.isSpringEnvironment()){
-                    result.add((T) SpiCache.spiProviderInstanceBeanCache.get(spiProviderMetaProduct.getClassName()));
+                if (spiProviderMetaProduct != null){
+                    // spring环境
+                    if (EnvUtils.isSpringEnvironment()){
+                        result.add((T) SpiCache.spiProviderInstanceBeanCache.get(spiProviderMetaProduct.getClassName()));
+                    }else{
+                        // 非spring环境
+                        result.add((T) spiProviderMetaProduct.getClassType().newInstance());
+                    }
                 }else{
-                    // 非spring环境
-                    result.add((T) spiProviderMetaProduct.getClassType().newInstance());
+                    // 尝试从远端加载
+                    findRemoteSpiProvider(product, spiInterface.getName(), result);
                 }
             }
         }
-        return result;
     }
+
 }

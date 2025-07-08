@@ -1,8 +1,11 @@
 package com.lee.spi.core.spring;
 
+import com.lee.spi.core.annotation.Spi;
+import com.lee.spi.core.annotation.SpiProvider;
 import com.lee.spi.core.cache.SpiCache;
 import com.lee.spi.core.cache.SpiCacheLoader;
 import com.lee.spi.core.meta.SpiMeta;
+import com.lee.spi.core.remote.SpiRemoteApi;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -11,7 +14,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -51,13 +54,22 @@ public class SpiBeanPostProcessor implements BeanPostProcessor, BeanDefinitionRe
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-
         for (String spiProviderClassName : SpiCache.spiProviderClassNames) {
             if (bean.getClass().getName().equals(spiProviderClassName)) {
                 SpiCache.spiProviderInstanceBeanCache.put(spiProviderClassName, bean);
+                ServiceLoader<SpiRemoteApi> spiRemoteApis = ServiceLoader.load(SpiRemoteApi.class);
+                for (SpiRemoteApi spiRemoteApi : spiRemoteApis) {
+                    SpiProvider annotation = bean.getClass().getAnnotation(SpiProvider.class);
+                    String code = annotation.code();
+                    Set<String> spiInterfaces = SpiCache.spiProviderSpiCache.get(spiProviderClassName);
+                    if (spiInterfaces != null && !spiInterfaces.isEmpty()) {
+                        for (String spiInterface : spiInterfaces) {
+                            spiRemoteApi.registerRemoteSpiProvider(spiInterface, code, bean);
+                        }
+                    }
+                }
             }
         }
-
         return bean;
     }
 

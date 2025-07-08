@@ -5,7 +5,7 @@
 
     <groupId>com.dreams-summer</groupId>
     <artifactId>spi</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>pom</packaging>
     <name>spi</name>
     <description>spi</description>
@@ -14,6 +14,7 @@
     <modules>
         <module>spi-core</module>
         <module>spi-example</module>
+        <module>spi-remote</module>
     </modules>
 
     <properties>
@@ -27,12 +28,12 @@
             <dependency>
                 <groupId>com.dreams-summer</groupId>
                 <artifactId>spi-core</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3</version>
             </dependency>
             <dependency>
                 <groupId>com.dreams-summer</groupId>
                 <artifactId>spi-example</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -12,9 +12,7 @@ import com.lee.spi.core.util.ProxyUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -44,12 +42,17 @@ public class SpiCacheLoader {
                     if (spiProxy == null){
                         spiProxy = new SpiProxy();
                     }
+                    Map<String, SpiProviderMeta> proxyMap = spiProxy.getSpiProxyMap();
+                    if (proxyMap == null){
+                        proxyMap = new HashMap<>();
+                        spiProxy.setSpiProxyMap(proxyMap);
+                    }
+
                     String interfaceName = spiMeta.getInterfaceName();
                     Class<?> interfaceType = Class.forName(interfaceName);
                     List<SpiProviderMeta> spiProviderMetas = SpiProviderLoader.load(interfaceType);
                     boolean existDefaultProvider = false;
                     for (SpiProviderMeta spiProviderMeta : spiProviderMetas) {
-
                         String identityCode = spiProviderMeta.getCode();
 
                         Boolean isDefault = spiProviderMeta.getIsDefault();
@@ -65,28 +68,24 @@ public class SpiCacheLoader {
                             }
                         }
 
-                        Map<String, SpiProviderMeta> proxyMap = spiProxy.getSpiProxyMap();
-                        if (proxyMap == null){
-                            proxyMap = new HashMap<>();
-                            spiProxy.setSpiProxyMap(proxyMap);
-                        }
-
                         SpiProviderMeta oldSpiProvider = proxyMap.get(identityCode);
                         if (oldSpiProvider != null){
                             throw new SpiRuntimeException(ErrorCode.MUCH_IDENTICAL_IDENTITY, interfaceName ,identityCode);
                         }
 
                         proxyMap.put(identityCode, spiProviderMeta);
-
-                        spiProxy.setSpiMeta(spiMeta);
-                        spiProxy.setSpiProxyMap(proxyMap);
-
-                        Object proxy = ProxyUtils.getProxy(interfaceType, spiProxy);
-
-                        SpiCache.spiProxyInstanceCache.put(spiMeta.getInterfaceName(), proxy);
-                        SpiCache.spiSpiProxyCache.put(spiMeta.getInterfaceName(), spiProxy);
                         SpiCache.spiProviderClassNames.add(spiProviderMeta.getClassName());
+
+                        Set<String> spiInterfaceSet = SpiCache.spiProviderSpiCache.getOrDefault(spiProviderMeta.getClassName(), new TreeSet<>());
+                        spiInterfaceSet.add(interfaceName);
+                        SpiCache.spiProviderSpiCache.put(spiProviderMeta.getClassName(), spiInterfaceSet);
                     }
+                    spiProxy.setSpiMeta(spiMeta);
+                    spiProxy.setSpiProxyMap(proxyMap);
+                    Object proxy = ProxyUtils.getProxy(interfaceType, spiProxy);
+
+                    SpiCache.spiProxyInstanceCache.put(spiMeta.getInterfaceName(), proxy);
+                    SpiCache.spiSpiProxyCache.put(spiMeta.getInterfaceName(), spiProxy);
                 }
             }
         } catch (Exception e) {
