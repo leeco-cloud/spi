@@ -1,5 +1,29 @@
 ### 使用手册
 
+#### 前置: maven依赖
+```xml
+<dependency>
+    <groupId>com.dreams-summer</groupId>
+    <artifactId>spi-core</artifactId>
+    <version>1.0.4-SNAPSHOT</version>
+</dependency>
+
+<!-- 按需：IPC容器调用 -->
+<dependency>
+    <groupId>com.dreams-summer</groupId>
+    <artifactId>spi-remote-ipc</artifactId>
+    <version>1.0.4-SNAPSHOT</version>
+</dependency>
+        
+<!-- 按需：RPC跨机器调用 -->
+<dependency>
+    <groupId>com.dreams-summer</groupId>
+    <artifactId>spi-remote-rpc</artifactId>
+    <version>1.0.4-SNAPSHOT</version>
+</dependency>
+
+```
+
 #### 1. 业务身份定义
 定义业务身份，即添加Identity注解，并声明身份code，该注解可以添加在任何类上，每一个业务身份有且进需要定义一次
 ```java
