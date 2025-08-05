@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * spi remote rpc 临时实现
+ * spi remote rpc 实现
  * // todo 待完善
  * @author yanhuai lee
  */
