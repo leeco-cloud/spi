@@ -11,10 +11,15 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * spi remote rpc 实现
+ * spi remote rpc 临时实现
+ * // todo 待完善
  * @author yanhuai lee
  */
 public class SpiRemoteRpcImpl implements SpiRemoteApi {
+
+    private static final ApplicationConfig consumerApplication = new ApplicationConfig();
+    private static final ApplicationConfig providerApplication = new ApplicationConfig();
+    private static final RegistryConfig registry = new RegistryConfig();
 
     @Override
     public Object findRemoteSpiProvider(String interfaceName, String code) {
@@ -36,24 +41,21 @@ public class SpiRemoteRpcImpl implements SpiRemoteApi {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        ApplicationConfig application = new ApplicationConfig();
-        application.setName("SPI-consumer");
-
-        RegistryConfig registry = new RegistryConfig();
+        consumerApplication.setName("SPI-consumer");
         registry.setAddress("zookeeper://127.0.0.1:2181");
 
         ReferenceConfig reference = new ReferenceConfig<>();
-        reference.setApplication(application);
+        reference.setApplication(consumerApplication);
         reference.setRegistry(registry);
         reference.setInterface(interfaceClass);
         reference.setId(interfaceName + "#" + code);
         reference.setVersion("1.0.0");
         reference.setTimeout(timeout);
 
-        Object spiProviderBean = reference.get();
+        Object spiProviderProxy = reference.get();
 
         try {
-            return method.invoke(spiProviderBean, args);
+            return method.invoke(spiProviderProxy, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
@@ -68,10 +70,7 @@ public class SpiRemoteRpcImpl implements SpiRemoteApi {
             throw new RuntimeException(e);
         }
 
-        ApplicationConfig application = new ApplicationConfig();
-        application.setName("SPI-provider");
-
-        RegistryConfig registry = new RegistryConfig();
+        providerApplication.setName("SPI-provider");
         registry.setAddress("zookeeper://127.0.0.1:2181");
 
         ProtocolConfig protocol = new ProtocolConfig();
@@ -79,7 +78,7 @@ public class SpiRemoteRpcImpl implements SpiRemoteApi {
         protocol.setPort(20880);
 
         ServiceConfig service = new ServiceConfig<>();
-        service.setApplication(application);
+        service.setApplication(providerApplication);
         service.setRegistry(registry);
         service.setProtocol(protocol);
         service.setInterface(interfaceClass);
